@@ -8,7 +8,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QMovie
-
+from PyQt5.QtCore import QFileSystemWatcher
 
 class RoundedMessageLabel(QtWidgets.QLabel):
     def __init__(self, text, bg_color, text_color):
@@ -40,7 +40,6 @@ class RoundedMessageLabel(QtWidgets.QLabel):
         text_rect = fm.boundingRect(0, 0, 250, 0, QtCore.Qt.TextWordWrap, self.text())
         text_rect.adjust(0, 0, 30, 20)  # Add padding for margins
         return text_rect.size()
-
 
 class Ui_MainWindow(object):
 
@@ -101,7 +100,6 @@ class Ui_MainWindow(object):
         self.main_layout = QtWidgets.QVBoxLayout(self.main_layout_widget)
         self.main_layout.setContentsMargins(0, 0, 0, 0)  # 去掉边距
 
-
         # 创建“Show Less”和“Show More”按钮
         self.show_less_button = QtWidgets.QPushButton('Show Less', self.main_layout_widget)
         self.show_less_button.clicked.connect(self.showLess)
@@ -134,43 +132,26 @@ class Ui_MainWindow(object):
         self.scroll_layout.addStretch(1)
         self.scroll_area.setWidget(self.scroll_widget)
 
-        # Input layout
-        self.input_layout_widget = QtWidgets.QWidget(self.main_layout_widget)
-        self.input_layout = QtWidgets.QHBoxLayout(self.input_layout_widget)
-        self.input_text = QtWidgets.QLineEdit()
-        self.input_text.setStyleSheet("""
-            QLineEdit {
-                background-color: white;  
-                color: black;              
-            }
-        """)
-        self.send_button = QtWidgets.QPushButton('Send')
-        self.send_button.setStyleSheet("""
-            QPushButton {
-                background-color: blue;  
-                color: white;              
-            }
-        """)
-        self.send_button.clicked.connect(self.addMessage)
+        # 文件监视器
+        self.file_watcher = QFileSystemWatcher()
+        self.file_watcher.addPath('Resource/text/question.txt')
+        self.file_watcher.addPath('Resource/text/response.txt')
+        self.file_watcher.fileChanged.connect(self.onFileChanged)
 
-        self.input_layout.addWidget(self.input_text)
-        self.input_layout.addWidget(self.send_button)
-        self.main_layout.addWidget(self.input_layout_widget)
+    def onFileChanged(self, path):
+        if path == 'Resource/text/question.txt':
+            self.addUserMessage()
+        elif path == 'Resource/text/response.txt':
+            self.addBotMessage()
 
-    def addMessage(self):
-        message = self.input_text.text().strip()
+    def addUserMessage(self):
+        with open('Resource/text/question.txt', 'r', encoding='utf-8') as file:
+            message = file.read().strip()
         if message:
-            # User message (right side)
-            user_label = RoundedMessageLabel(message, "lightgreen", "black")
+            user_label = RoundedMessageLabel(message, "light green", "black")
             user_label.setMaximumWidth(250)
             user_label.adjustSize()
 
-            # Bot reply (left side)
-            bot_label = RoundedMessageLabel(message, "white", "black")
-            bot_label.setMaximumWidth(250)
-            bot_label.adjustSize()
-
-            # Insert user message
             user_item_widget = QtWidgets.QWidget()
             user_layout = QtWidgets.QHBoxLayout(user_item_widget)
             user_layout.addStretch()
@@ -178,7 +159,16 @@ class Ui_MainWindow(object):
             user_layout.setContentsMargins(0, 0, 0, 0)
             self.scroll_layout.insertWidget(self.scroll_layout.count() - 1, user_item_widget)
 
-            # Insert bot reply
+            self.scroll_area.verticalScrollBar().setValue(self.scroll_area.verticalScrollBar().maximum())
+
+    def addBotMessage(self):
+        with open('Resource/text/response.txt', 'r', encoding='utf-8') as file:
+            message = file.read().strip()
+        if message:
+            bot_label = RoundedMessageLabel(message, "white", "black")
+            bot_label.setMaximumWidth(250)
+            bot_label.adjustSize()
+
             bot_item_widget = QtWidgets.QWidget()
             bot_layout = QtWidgets.QHBoxLayout(bot_item_widget)
             bot_layout.addWidget(bot_label)
@@ -186,7 +176,6 @@ class Ui_MainWindow(object):
             bot_layout.setContentsMargins(0, 0, 0, 0)
             self.scroll_layout.insertWidget(self.scroll_layout.count() - 1, bot_item_widget)
 
-            self.input_text.clear()
             self.scroll_area.verticalScrollBar().setValue(self.scroll_area.verticalScrollBar().maximum())
 
     def onButtonPressed(self):
@@ -204,23 +193,20 @@ class Ui_MainWindow(object):
     def showLess(self):
         # 隐藏scroll_area和input_layout，但不移除它们
         self.scroll_area.setVisible(False)
-        self.input_layout_widget.setVisible(False)
-        self.send_button.setVisible(False)
+        # self.input_layout_widget.setVisible(False)
+        # self.send_button.setVisible(False)
         self.main_layout.removeWidget(self.scroll_area)
-        self.main_layout.removeItem(self.input_layout)
         self.main_layout_widget.setGeometry(0, 240, 300, 30)  # 绝对定位
         self.MainWindow.setGeometry(300, 300, 300, 280)
         self.show_less_button.setVisible(False)
         self.show_more_button.setVisible(True)
 
-
     def showMore(self):
         # 显示scroll_area和input_layout
         self.scroll_area.setVisible(True)
-        self.input_layout_widget.setVisible(True)
-        self.send_button.setVisible(True)
+        # self.input_layout_widget.setVisible(True)
+        # self.send_button.setVisible(True)
         self.main_layout.insertWidget(self.main_layout.count() - 1, self.scroll_area)
-        self.main_layout.insertLayout(self.main_layout.count() - 1, self.input_layout)
         self.main_layout_widget.setGeometry(0, 240, 300, 360)  # 绝对定位
         self.MainWindow.setGeometry(300, 300, 300, 600)
 
