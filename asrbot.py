@@ -14,8 +14,7 @@ class asrbot():
     awakeword="小邓"
     #状态有： 监听：DETECTING   对话：CHATING     
     status="DETECTING"
-    last_modification_time = 0
-    current_modification_time =0
+    lastresponse=None
     def recognize_speech_from_mic(self,recognizer, microphone):
     # check that recognizer and microphone arguments are appropriate type
         if not isinstance(recognizer, sr.Recognizer):
@@ -52,19 +51,17 @@ class asrbot():
             response["error"] = "Unable to recognize speech"
         return response
     def run(self):
-        logger.info('running...')
-        while True:
-            #动态检测唤醒词
-            if self.status=="DETECTING":
-                if  not self.run_detect_wakeup_word():
-                    continue
-                else:
-                    # 1. 唤醒提示音
-                    logger.info('wakeup & listening...')
-                    play_wakeup()
-                    self.status="CHATING"
-                    continue
-            elif self.status=="CHATING":
+        #动态检测唤醒词
+        if self.status=="DETECTING":
+            if  not self.run_detect_wakeup_word():
+                return
+            else:
+                # 1. 唤醒提示音
+                logger.info('wakeup & listening...')
+                play_wakeup()
+                self.status="CHATING"
+                return
+        elif self.status=="CHATING":
                 # 2. 识别用户输入的语音
                 play_audio('request_question.wav')
                 recognizer = sr.Recognizer()
@@ -73,11 +70,14 @@ class asrbot():
                 text=res["transcription"]
                 if text==None:
                     play_audio('try_again.wav')
-                    continue
+                    return
                 elif "结束对话" in text:
                     play_audio('goodbye.wav')
                     self.status="DETECTING"
-
+                    return
+                with open('Resource/text/response.txt', 'r', encoding='utf-8') as file:
+                    self.lastresponse=file.read()
+                    print(self.lastresponse)
                 # 将识别的文本写入文件
                 with open('Resource/text/question.txt', 'w', encoding='utf-8') as file:
                     file.write(text)
@@ -85,20 +85,17 @@ class asrbot():
                 # 3. 读取chatbot的回答
                 play_waiting()
                 #等待Response.txt发生更改
-                INPUT_FILE = 'Resource/text/response.txt'
-                self.last_modification_time=get_file_modification_time(INPUT_FILE)
                 while True:
-                    time.sleep(3)  # 每5秒检测一次
-                    self.current_modification_time = get_file_modification_time(INPUT_FILE)
-                    if self.current_modification_time != self.last_modification_time:
-                        print(f"{INPUT_FILE} question.txt发生更改")
-                        print(self.current_modification_time)
-                        print(self.last_modification_time)
+                    time.sleep(5)  # 每5秒检测一次
+                    with open('Resource/text/response.txt', 'r', encoding='utf-8') as file:
+                        response_text = file.read()
+                        print(response_text)
+                    if response_text != self.lastresponse:
+                        print("question.txt发生更改")
+                        self.lastresponse = response_text
                         break
-                with open('Resource/text/response.txt', 'r', encoding='utf-8') as file:
-                    response_text = file.read()
                 # 4. 调用tts的api获取输出语音
-                synthesize_speech(response_text)
+                synthesize_speech(self.lastresponse)
                 logger.info('play response...')
 
                 # 5. 播放回答

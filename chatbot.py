@@ -45,7 +45,7 @@ class WenxinYiyanChatBot:
             for question in questions:
                 response = self.get_response(question.strip())
                 print(f"问题: {question.strip()}\n回答: {response}\n")
-                outfile.write(f"{response}\n")
+                outfile.write(response)
 
 def get_file_modification_time(filepath):
     return os.path.getmtime(filepath)

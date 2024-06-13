@@ -1,7 +1,7 @@
 import requests
 
 PATH=PATH='Resource/wav/'
-def synthesize_speech(text, voice="2222", prompt="[break_2]", temperature=0.3, top_p=0.7, top_k=20, skip_refine=0, custom_voice=0):
+def synthesize_speech(text, voice="11", prompt="[break_1]", temperature=0.3, top_p=0.7, top_k=20, skip_refine=0, custom_voice=0):
     url = 'http://127.0.0.1:9966/tts'
     payload = {
         "text": text,
