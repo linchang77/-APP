@@ -1,0 +1,9 @@
+Tone: 男(11)
+Tone Value: 
+Custom Tone: 
+Text Seed: 42
+Prompt: 
+Speed: 5
+Temperature: 3
+Top P: 7
+Top K: 20
