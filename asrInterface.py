@@ -167,7 +167,7 @@ class Ui_MainWindow(object):
         # 设置按钮
         self.settings_button = QtWidgets.QPushButton(MainWindow)
         self.settings_button.setStyleSheet("background-color: transparent; border: none;")
-        self.settings_button.setGeometry(250, 0, 40, 40)  # 绝对定位
+        self.settings_button.setGeometry(260, 0, 40, 40)  # 绝对定位
         self.settings_button.setIcon(QtGui.QIcon('icon/settings.png'))  # 请确保路径正确
         self.settings_button.setIconSize(QtCore.QSize(40, 40))
         self.settings_button.clicked.connect(self.openSettingsDialog)
