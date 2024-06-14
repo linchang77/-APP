@@ -1,0 +1,7 @@
+voice=5555
+prompt=[break_1]
+temperature=0.5
+top_p=0.7
+top_k=20
+skip_refine=0
+custom_voice=0

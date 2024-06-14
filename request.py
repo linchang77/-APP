@@ -1,7 +1,19 @@
 import requests
 
-PATH=PATH='Resource/wav/'
-def synthesize_speech(text, voice="11", prompt="[break_1]", temperature=0.3, top_p=0.7, top_k=20, skip_refine=0, custom_voice=0):
+PATH='Resource/wav/'
+def request_voice(text, voiceset, name='output.wav'):
+    # 获取配置参数
+    voice = voiceset.get("voice", "11")
+    prompt = voiceset.get("prompt", "[break_1]")
+    temperature = voiceset.get("temperature", 0.3)
+    top_p = voiceset.get("top_p", 0.7)
+    top_k = voiceset.get("top_k", 20)
+    skip_refine = voiceset.get("skip_refine", 0)
+    custom_voice = voiceset.get("custom_voice", 0)
+    # 调用合成函数
+    synthesize_speech(text, voice, prompt, temperature, top_p, top_k, skip_refine, custom_voice, name)
+
+def synthesize_speech(text, voice="11", prompt="[break_1]", temperature=0.5, top_p=0.7, top_k=20, skip_refine=0, custom_voice=0,name='output.wav'):
     url = 'http://127.0.0.1:9966/tts'
     payload = {
         "text": text,
@@ -29,9 +41,9 @@ def synthesize_speech(text, voice="11", prompt="[break_1]", temperature=0.3, top
             # You can add code here to download and save the file if needed.
             # For example:
             audio_response = requests.get(download_url)
-            with open(PATH+"output.wav", "wb") as file:
+            with open(PATH+name, "wb") as file:
                 file.write(audio_response.content)
-            print("Audio content written to file 'output.wav'")
+            print("Audio content written to file"+name)
 
         else:
             print(f"Error: {response_data['msg']}")

@@ -16,7 +16,7 @@ git下载网址：<https://github.com/git-for-windows/git/releases/download/v2.4
    在桌面打开`git bash`
 
    ```bash
-   git clone https://github.com/linchang77/Voice-recognition-App.
+   git clone https://github.com/linchang77/Voice-recognition-App
    cd chatbot
    ```
 

@@ -2,6 +2,8 @@ from asrbot import asrbot
 import threading
 from chatbot import WenxinYiyanChatBot , get_file_modification_time
 import time
+from Audio_player import init_audios,get_voice_set
+from request import request_voice,synthesize_speech
 
 class chatThread(threading.Thread):
     def __init__(self):
@@ -28,10 +30,11 @@ class chatThread(threading.Thread):
                 print(f"{INPUT_FILE} 文件已修改，正在处理新的问题...")
                 chatbot.read_questions_and_write_responses(INPUT_FILE, OUTPUT_FILE)
                 last_modification_time = current_modification_time
-chatThread=chatThread()
-chatThread.start()
-asrbot=asrbot()
-asrbot.run()
 
-
+#request_voice("在呢",voiceset,"zaine.wav")
+#synthesize_speech("在呢", "2222", "[break_2],[oral_2]", 0.5, 0.7, 20, 0, 0, "zaine.wav")
+init_audios(get_voice_set())
+#asrbot_instance=asrbot()
+#while True:
+    #asrbot.run()
 

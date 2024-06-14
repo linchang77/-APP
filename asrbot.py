@@ -1,8 +1,8 @@
 import speech_recognition as sr
 import logging
-from Audio_player import play_audio, play_wakeup, play_waiting
+from Audio_player import play_audio, play_wakeup, play_waiting,get_voice_set
 import os
-from request import synthesize_speech
+from request import request_voice
 import time
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
@@ -15,6 +15,8 @@ class asrbot():
     #状态有： 监听：DETECTING   对话：CHATING     
     status="DETECTING"
     lastresponse=None
+    voice={}
+    voice=get_voice_set()
     def recognize_speech_from_mic(self,recognizer, microphone):
     # check that recognizer and microphone arguments are appropriate type
         if not isinstance(recognizer, sr.Recognizer):
@@ -95,7 +97,7 @@ class asrbot():
                         self.lastresponse = response_text
                         break
                 # 4. 调用tts的api获取输出语音
-                synthesize_speech(self.lastresponse)
+                request_voice(response_text,self.voice)
                 logger.info('play response...')
 
                 # 5. 播放回答
@@ -105,6 +107,7 @@ class asrbot():
     def run_detect_wakeup_word(self):
         recognizer = sr.Recognizer()
         microphone = sr.Microphone()
+        print("dectecting")
         response=self.recognize_speech_from_mic(recognizer, microphone)
         #如果读取错误直接报错
         if(response["error"] != None):
