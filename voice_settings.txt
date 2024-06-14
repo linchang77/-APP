@@ -1,5 +1,5 @@
-voice=5555
-prompt=[break_1]
+voice=1111
+prompt=[break_1],[oral_2]
 temperature=0.5
 top_p=0.7
 top_k=20
