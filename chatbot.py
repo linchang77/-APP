@@ -22,8 +22,7 @@ class WenxinYiyanChatBot:
         return response.json().get("access_token")
 
     def get_response(self, message):
-        # 提示回答尽可能简短
-        prompt = "请尽量简短地回答: " + message
+        prompt =  message
         self.conversation_history.append({"role": "user", "content": prompt})
         payload = json.dumps({
             "messages": self.conversation_history

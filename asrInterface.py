@@ -11,7 +11,7 @@ class VoiceSettingsDialog(QtWidgets.QDialog):
         # Voice
         voice_layout = QtWidgets.QHBoxLayout()
         voice_label = QtWidgets.QLabel("Voice")
-        self.voice_edit = QtWidgets.QLineEdit("1111")
+        self.voice_edit = QtWidgets.QLineEdit()
         voice_layout.addWidget(voice_label)
         voice_layout.addWidget(self.voice_edit)
         layout.addLayout(voice_layout)
@@ -19,7 +19,7 @@ class VoiceSettingsDialog(QtWidgets.QDialog):
         # Prompt
         prompt_layout = QtWidgets.QHBoxLayout()
         prompt_label = QtWidgets.QLabel("Prompt")
-        self.prompt_edit = QtWidgets.QLineEdit("[break_1],[oral_2]")
+        self.prompt_edit = QtWidgets.QLineEdit()
         prompt_layout.addWidget(prompt_label)
         prompt_layout.addWidget(self.prompt_edit)
         layout.addLayout(prompt_layout)
@@ -29,7 +29,6 @@ class VoiceSettingsDialog(QtWidgets.QDialog):
         temperature_label = QtWidgets.QLabel("Temperature")
         self.temperature_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.temperature_slider.setRange(0, 10)
-        self.temperature_slider.setValue(5)  # 设置为0.5的中间值
         temperature_layout.addWidget(temperature_label)
         temperature_layout.addWidget(self.temperature_slider)
         layout.addLayout(temperature_layout)
@@ -39,7 +38,6 @@ class VoiceSettingsDialog(QtWidgets.QDialog):
         top_p_label = QtWidgets.QLabel("Top_p")
         self.top_p_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.top_p_slider.setRange(0, 10)
-        self.top_p_slider.setValue(7)  # 设置为0.7的中间值
         top_p_layout.addWidget(top_p_label)
         top_p_layout.addWidget(self.top_p_slider)
         layout.addLayout(top_p_layout)
@@ -49,7 +47,6 @@ class VoiceSettingsDialog(QtWidgets.QDialog):
         top_k_label = QtWidgets.QLabel("Top_k")
         self.top_k_slider = QtWidgets.QSlider(QtCore.Qt.Horizontal)
         self.top_k_slider.setRange(1, 20)
-        self.top_k_slider.setValue(20)
         top_k_layout.addWidget(top_k_label)
         top_k_layout.addWidget(self.top_k_slider)
         layout.addLayout(top_k_layout)
@@ -80,12 +77,33 @@ class VoiceSettingsDialog(QtWidgets.QDialog):
         buttons_layout.addWidget(self.cancel_button)
         layout.addLayout(buttons_layout)
 
+        # 从文件加载设置
+        self.loadSettingsFromFile()
+
+    def loadSettingsFromFile(self):
+        try:
+            with open('voice_settings.txt', 'r', encoding='utf-8') as file:
+                settings = {}
+                for line in file:
+                    key, value = line.strip().split('=')
+                    settings[key] = value
+
+                self.voice_edit.setText(settings.get("voice", "1111"))
+                self.prompt_edit.setText(settings.get("prompt", "[break_1],[oral_2]"))
+                self.temperature_slider.setValue(int(float(settings.get("temperature", "0.5")) * 10))
+                self.top_p_slider.setValue(int(float(settings.get("top_p", "0.7")) * 10))
+                self.top_k_slider.setValue(int(settings.get("top_k", "20")))
+                self.skip_refine_checkbox.setChecked(bool(int(settings.get("skip_refine", "0"))))
+                self.custom_voice_checkbox.setChecked(bool(int(settings.get("custom_voice", "0"))))
+        except FileNotFoundError:
+            pass  # 如果文件不存在，则保持默认值
+
     def getSettings(self):
         return {
             "voice": self.voice_edit.text(),
             "prompt": self.prompt_edit.text(),
-            "temperature": self.temperature_slider.value() / 10,  # 转换为0.5
-            "top_p": self.top_p_slider.value() / 10,  # 转换为0.7
+            "temperature": self.temperature_slider.value() / 10,  # 转换为0.5的中间值
+            "top_p": self.top_p_slider.value() / 10,  # 转换为0.7的中间值
             "top_k": self.top_k_slider.value(),
             "skip_refine": int(self.skip_refine_checkbox.isChecked()),
             "custom_voice": int(self.custom_voice_checkbox.isChecked())
@@ -140,28 +158,6 @@ class Ui_MainWindow(object):
         self.label_initial.setMovie(self.initial_gif)
         self.initial_gif.start()
 
-        self.text_label = QtWidgets.QLabel(MainWindow)
-        font = QtGui.QFont()
-        font.setFamily("Calibri")
-        font.setPointSize(12)
-        self.text_label.setGeometry(0, 210, 300, 30)
-        self.text_label.setWordWrap(True)
-        self.text_label.setStyleSheet("color:rgb(200,0,117);")
-        self.text_label.setFont(font)
-        self.text_label.setObjectName("text")
-        self.text_label.setText("    Press the microphone to")
-
-        self.text_Start = QtWidgets.QLabel(MainWindow)
-        font = QtGui.QFont()
-        font.setFamily("Calibri")
-        font.setPointSize(14)
-        self.text_Start.setGeometry(230, 210, 300, 30)
-        self.text_Start.setWordWrap(True)
-        self.text_Start.setStyleSheet("color:rgb(200,200,0);")
-        self.text_Start.setFont(font)
-        self.text_Start.setObjectName("Start")
-        self.text_Start.setText(" Start")
-
         # 创建标签用于显示第二个GIF
         self.label_second = QtWidgets.QLabel(MainWindow)
         self.label_second.setGeometry(-50, -50, 399, 300)
@@ -201,7 +197,7 @@ class Ui_MainWindow(object):
 
         # 创建“Show Less”和“Show More”按钮
         self.show_less_button = QtWidgets.QPushButton('Show Less', self.main_layout_widget)
-        self.show_less_button.clicked.connect(self.showLess)
+        self.show_less_button.clicked.connect(self.gess)
         self.show_less_button.setStyleSheet("""
             QPushButton {
                 background-color: blue;  
@@ -309,11 +305,10 @@ class Ui_MainWindow(object):
         instructions_dialog.exec_()
 
     def saveSettingsToFile(self, settings):
-        with open('voice_settings.txt', 'w', encoding='utf-8') as file:
+        with open('settings.txt', 'w', encoding='utf-8') as file:
             for key, value in settings.items():
                 file.write(f"{key}={value}\n")
         init_audios(get_voice_set())
-
 class RoundedMessageLabel(QtWidgets.QLabel):
     def __init__(self, text, bg_color, text_color):
         super().__init__(text)

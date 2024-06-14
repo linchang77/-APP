@@ -1,5 +1,4 @@
 import requests
-
 PATH='Resource/wav/'
 def request_voice(text, voiceset, name='output.wav'):
     # 获取配置参数

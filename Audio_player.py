@@ -53,8 +53,8 @@ def get_voice_set():
         print(f"An error occurred: {e}")
     return voiceset
 def init_audios(voiceset):
-    request_voice("在呢",voiceset,"zaine.wav")
-    request_voice("好的,那就再见",voiceset,"goodbye.wav")
+    request_voice("我在啊",voiceset,"zaine.wav")
+    request_voice("好的[uv_break]再见吧。",voiceset,"goodbye.wav")
     request_voice("告诉我你有什么问题",voiceset,"request_question.wav")
     request_voice("让我思考一下",voiceset,"sikaoyixia.wav")
     request_voice("我没有听清请你重新说一遍吧",voiceset,"try_again.wav")

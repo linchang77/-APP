@@ -12,6 +12,8 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+chatsettings="你是一个语音聊天助手,下面你将会开始和我聊天,你的回答要简短一点,不超过30个字。"
+
 class myWindow(QtWidgets.QMainWindow):
 
     def __init__(self):
@@ -54,6 +56,8 @@ class chatThread(threading.Thread):
         OUTPUT_FILE = 'Resource/text/response.txt'
         
         chatbot = WenxinYiyanChatBot(API_KEY, SECRET_KEY)
+        #给聊天机器人预先加一些设定
+        chatbot.get_response(chatsettings)
         last_modification_time = get_file_modification_time(INPUT_FILE)
         
         print("启动文心一言")
