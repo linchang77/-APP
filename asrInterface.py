@@ -1,5 +1,5 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
-from Audio_player import init_audios,get_voice_set
+
 class VoiceSettingsDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -146,10 +146,15 @@ class InstructionsDialog(QtWidgets.QDialog):
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         self.MainWindow = MainWindow
-        MainWindow.setGeometry(300, 300, 300, 600)
+        MainWindow.setFixedSize(300, 600) 
         MainWindow.setWindowTitle('GIF Switcher')
-        MainWindow.setStyleSheet("background-color:rgb(0,0,0)")
 
+        self.background_label = QtWidgets.QLabel(MainWindow)
+        self.background_label.setGeometry(0, 0, 300, 600)
+        self.background_pixmap = QtGui.QPixmap('icon/StarrySky.jpg')
+        self.background_label.setPixmap(self.background_pixmap)
+        self.background_label.lower()
+        
         # 创建标签用于显示初始GIF
         self.label_initial = QtWidgets.QLabel(MainWindow)
         self.label_initial.setGeometry(50, 0, 200, 200)
@@ -197,7 +202,7 @@ class Ui_MainWindow(object):
 
         # 创建“Show Less”和“Show More”按钮
         self.show_less_button = QtWidgets.QPushButton('Show Less', self.main_layout_widget)
-        self.show_less_button.clicked.connect(self.gess)
+        self.show_less_button.clicked.connect(self.showLess)
         self.show_less_button.setStyleSheet("""
             QPushButton {
                 background-color: blue;  
@@ -220,6 +225,7 @@ class Ui_MainWindow(object):
         self.scroll_area = QtWidgets.QScrollArea(self.main_layout_widget)
         self.scroll_area.setWidgetResizable(True)
         self.scroll_widget = QtWidgets.QWidget()
+        self.scroll_area.setStyleSheet("background-color: transparent; border: none;")
         self.scroll_layout = QtWidgets.QVBoxLayout(self.scroll_widget)
         self.scroll_area.setWidget(self.scroll_widget)
         self.main_layout.addWidget(self.scroll_area)
@@ -282,7 +288,7 @@ class Ui_MainWindow(object):
         self.scroll_area.setVisible(False)
         self.main_layout.removeWidget(self.scroll_area)
         self.main_layout_widget.setGeometry(0, 240, 300, 30)
-        self.MainWindow.setGeometry(300, 300, 300, 280)
+        self.MainWindow.setFixedSize(300, 280) 
         self.show_less_button.setVisible(False)
         self.show_more_button.setVisible(True)
 
@@ -290,7 +296,7 @@ class Ui_MainWindow(object):
         self.scroll_area.setVisible(True)
         self.main_layout.insertWidget(self.main_layout.count() - 1, self.scroll_area)
         self.main_layout_widget.setGeometry(0, 240, 300, 360)
-        self.MainWindow.setGeometry(300, 300, 300, 600)
+        self.MainWindow.setFixedSize(300, 600) 
         self.show_less_button.setVisible(True)
         self.show_more_button.setVisible(False)
 
@@ -308,7 +314,7 @@ class Ui_MainWindow(object):
         with open('settings.txt', 'w', encoding='utf-8') as file:
             for key, value in settings.items():
                 file.write(f"{key}={value}\n")
-        init_audios(get_voice_set())
+
 class RoundedMessageLabel(QtWidgets.QLabel):
     def __init__(self, text, bg_color, text_color):
         super().__init__(text)
