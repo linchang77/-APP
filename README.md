@@ -49,3 +49,10 @@ git下载网址：<https://github.com/git-for-windows/git/releases/download/v2.4
 
 2. **启动聊天机器人程序**
    打开cmd或ide激活刚刚配置好的环境然后执行`python asr.py`
+
+## git提交记录
+
+![alt text](image.png)
+![alt text](image-1.png)
+
+该项目具有良好的版本控制,三位组员各自拥有自己的分支,共享一个main分支。
